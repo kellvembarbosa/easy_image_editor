@@ -12,12 +12,10 @@ class EasyImageEditorController {
   }
 
   /// This function user for add view in editor
-  void addView(Widget view, {String? widgetType}) =>
-      _editorViewState?._addView(view, widgetType);
+  void addView(Widget view, {String? widgetType}) => _editorViewState?._addView(view, widgetType);
 
   /// update view of given position.
-  void updateView(int position, Widget view) =>
-      _editorViewState?._updateView(position, view);
+  void updateView(int position, Widget view) => _editorViewState?._updateView(position, view);
 
   /// hide Border and Remove button from all views
   void hideViewControl() => _editorViewState?._disableEditMode();
@@ -26,8 +24,7 @@ class EasyImageEditorController {
   void showViewControl() => _editorViewState?._enableEditModel();
 
   /// allow editor to move, zoom and rotate multiple views. if you set true than only one view can move, zoom and rotate default value is true.
-  void canEditMultipleView(bool isMultipleSelection) =>
-      _editorViewState?._setSelectionMode(!isMultipleSelection);
+  void canEditMultipleView(bool isMultipleSelection) => _editorViewState?._setSelectionMode(!isMultipleSelection);
 
   /// set editor background view it will overlap background color.
   void addBackgroundView(Widget? view) => _editorViewState?._addBGView(view);
@@ -43,26 +40,21 @@ class EasyImageEditorController {
 
   /// move view by provide position and move type like left, right and his his value.
   /// Ex. position = 0, moveType = MoveType.left, value = 10
-  void moveView(int position, MoveType moveType, double value) =>
-      _editorViewState?._moveView(position, moveType, value);
+  void moveView(int position, MoveType moveType, double value) => _editorViewState?._moveView(position, moveType, value);
 
   /// rotate particular view
-  void rotateView(int position, double rotateDegree) =>
-      _editorViewState?._rotateView(position, rotateDegree);
+  void rotateView(int position, double rotateDegree) => _editorViewState?._rotateView(position, rotateDegree);
 
   /// zoom In and Out view
   /// for zoom view value > 1
   /// for zoom out view value < 0 like (0.1)
-  void zoomInOutView(int position, double value) =>
-      _editorViewState?._zoomInOut(position, value);
+  void zoomInOutView(int position, double value) => _editorViewState?._zoomInOut(position, value);
 
   /// update matrix of particular view
-  void updateMatrix(int position, Matrix4 matrix4) =>
-      _editorViewState?._updateMatrix(position, matrix4);
+  void updateMatrix(int position, Matrix4 matrix4) => _editorViewState?._updateMatrix(position, matrix4);
 
   /// flip particular view
-  void flipView(int position, bool isHorizontal) =>
-      _editorViewState?._flipView(position, isHorizontal);
+  void flipView(int position, bool isHorizontal) => _editorViewState?._flipView(position, isHorizontal);
 
   /// save all edited views and his position and return Uint8List data.
   Future<Uint8List?> saveEditing() {
@@ -76,10 +68,12 @@ class EditorView extends StatefulWidget {
   const EditorView({
     key,
     required this.onInitialize,
+    this.containerDecoration,
     this.onViewTouch,
     this.onViewTouchOver,
     this.onClick,
     this.clickToFocusAndMove = false,
+    this.moveToUpTouchView = false,
     this.borderColor = Colors.black,
     this.removeIcon = const Icon(
       Icons.cancel,
@@ -91,6 +85,8 @@ class EditorView extends StatefulWidget {
   _EditorViewState createState() => _EditorViewState();
 
   final Function(EasyImageEditorController) onInitialize;
+
+  final BoxDecoration? containerDecoration;
 
   /// this event fire every time you touch view.
   final Function(int, Widget, String?)? onViewTouch;
@@ -108,6 +104,9 @@ class EditorView extends StatefulWidget {
   final Icon removeIcon;
 
   final bool clickToFocusAndMove;
+
+  /// set touch view to first layer
+  final bool moveToUpTouchView;
 }
 
 class _EditorViewState extends State<EditorView> {
@@ -190,9 +189,7 @@ class _EditorViewState extends State<EditorView> {
   }
 
   void _updateView(int position, Widget view) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
     setState(() {
       debugPrint("viewUpdated");
       _widgetList[position].resizableWidget = view;
@@ -232,8 +229,7 @@ class _EditorViewState extends State<EditorView> {
         setState(() {
           //_widgetList.removeWhere((element) => element.key == key);
           try {
-            final removeView =
-                _widgetList.firstWhere((element) => element.key == key);
+            final removeView = _widgetList.firstWhere((element) => element.key == key);
             removeView.isVisible = false;
             removeView.updateView();
           } catch (_) {}
@@ -242,8 +238,7 @@ class _EditorViewState extends State<EditorView> {
       onClick: (key, index, widgetType) {
         if (widget.clickToFocusAndMove) {
           setState(() {
-            final finalIndex =
-                _widgetList.indexWhere((element) => element.key == key);
+            final finalIndex = _widgetList.indexWhere((element) => element.key == key);
 
             final touchView = _widgetList.removeAt(finalIndex);
             touchView.showRemoveIcon = true;
@@ -253,8 +248,7 @@ class _EditorViewState extends State<EditorView> {
             _widgetList.add(touchView);
 
             if (widget.onClick != null) {
-              widget.onClick!(_widgetList.length - 1, touchView.resizableWidget,
-                  touchView.widgetType);
+              widget.onClick!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
             }
 
             if (isSingleMove) {
@@ -269,14 +263,12 @@ class _EditorViewState extends State<EditorView> {
             }
           });
         } else {
-          final finalIndex =
-              _widgetList.indexWhere((element) => element.key == key);
+          final finalIndex = _widgetList.indexWhere((element) => element.key == key);
 
           final touchView = _widgetList[finalIndex];
 
           if (widget.onClick != null) {
-            widget.onClick!(_widgetList.length - 1, touchView.resizableWidget,
-                touchView.widgetType);
+            widget.onClick!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
           }
         }
       },
@@ -284,19 +276,19 @@ class _EditorViewState extends State<EditorView> {
         debugPrint("onTouch");
         if (!widget.clickToFocusAndMove) {
           setState(() {
-            final finalIndex =
-                _widgetList.indexWhere((element) => element.key == key);
+            final finalIndex = _widgetList.indexWhere((element) => element.key == key);
 
-            final touchView = _widgetList.removeAt(finalIndex);
+            final touchView = widget.moveToUpTouchView ? _widgetList.removeAt(finalIndex) : _widgetList[finalIndex];
             touchView.showRemoveIcon = true;
             touchView.canMove = true;
             touchView.borderColor = widget.borderColor;
             touchView.updateView();
-            _widgetList.add(touchView);
+            if (widget.moveToUpTouchView) {
+              _widgetList.add(touchView);
+            }
 
             if (widget.onViewTouch != null) {
-              widget.onViewTouch!(_widgetList.length - 1,
-                  touchView.resizableWidget, touchView.widgetType);
+              widget.onViewTouch!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
             }
 
             if (isSingleMove) {
@@ -314,10 +306,8 @@ class _EditorViewState extends State<EditorView> {
       },
       onTouchOver: (key, position, matrix) {
         if (widget.onViewTouchOver != null) {
-          final touchView =
-              _widgetList.firstWhere((element) => element.key == key);
-          widget.onViewTouchOver!(_widgetList.length - 1,
-              touchView.resizableWidget, touchView.widgetType);
+          final touchView = _widgetList.firstWhere((element) => element.key == key);
+          widget.onViewTouchOver!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
         }
       },
     );
@@ -329,8 +319,7 @@ class _EditorViewState extends State<EditorView> {
     if (_widgetList.isNotEmpty) {
       try {
         setState(() {
-          final lastUnVisibleView =
-              _widgetList.lastWhere((element) => element.isVisible);
+          final lastUnVisibleView = _widgetList.lastWhere((element) => element.isVisible);
           lastUnVisibleView.isVisible = false;
           lastUnVisibleView.updateView();
         });
@@ -342,8 +331,7 @@ class _EditorViewState extends State<EditorView> {
     if (_widgetList.isNotEmpty) {
       try {
         setState(() {
-          final lastUnVisibleView =
-              _widgetList.firstWhere((element) => !element.isVisible);
+          final lastUnVisibleView = _widgetList.firstWhere((element) => !element.isVisible);
           lastUnVisibleView.isVisible = true;
           lastUnVisibleView.updateView();
         });
@@ -352,36 +340,28 @@ class _EditorViewState extends State<EditorView> {
   }
 
   void _flipView(int position, bool isHorizontal) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
 
     setState(() {
       final view = _widgetList[position];
       var myTransform = Matrix4Transform.from(view.matrix4!);
       if (isHorizontal) {
-        _widgetList[position]
-            .updateMatrix(myTransform.flipHorizontally().matrix4);
+        _widgetList[position].updateMatrix(myTransform.flipHorizontally().matrix4);
       } else {
-        _widgetList[position]
-            .updateMatrix(myTransform.flipVertically().matrix4);
+        _widgetList[position].updateMatrix(myTransform.flipVertically().matrix4);
       }
     });
   }
 
   void _updateMatrix(int position, Matrix4 matrix) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
     setState(() {
       _widgetList[position].updateMatrix(matrix);
     });
   }
 
   void _zoomInOut(int position, double value) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
     setState(() {
       final view = _widgetList[position];
       var myTransform = Matrix4Transform.from(view.matrix4!);
@@ -390,23 +370,16 @@ class _EditorViewState extends State<EditorView> {
   }
 
   void _rotateView(int position, double rotateDegree) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
     setState(() {
       final view = _widgetList[position];
       var myTransform = Matrix4Transform.from(view.matrix4!);
-      _widgetList[position].updateMatrix(myTransform
-          .rotateByCenterDegrees(
-              rotateDegree, Size(view.getWidth(), view.getHeight()))
-          .matrix4);
+      _widgetList[position].updateMatrix(myTransform.rotateByCenterDegrees(rotateDegree, Size(view.getWidth(), view.getHeight())).matrix4);
     });
   }
 
   void _moveView(int position, MoveType moveType, double value) {
-    assert(position >= 0 &&
-        _widgetList.isNotEmpty &&
-        _widgetList.length - 1 <= position);
+    assert(position >= 0 && _widgetList.isNotEmpty && _widgetList.length - 1 <= position);
 
     setState(() {
       final view = _widgetList[position];
@@ -427,9 +400,8 @@ class _EditorViewState extends State<EditorView> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      EasyImageEditorController easyImageEditorController =
-          EasyImageEditorController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      EasyImageEditorController easyImageEditorController = EasyImageEditorController();
       easyImageEditorController._init(this);
       widget.onInitialize(easyImageEditorController);
     });
@@ -446,7 +418,13 @@ class _EditorViewState extends State<EditorView> {
       child: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        color: (_backgroundColor != null) ? _backgroundColor : Colors.white,
+        decoration: (widget.containerDecoration != null)
+            ? widget.containerDecoration!.copyWith(
+                color: (_backgroundColor != null) ? _backgroundColor : Colors.black,
+              )
+            : BoxDecoration(
+                color: (_backgroundColor != null) ? _backgroundColor : Colors.black,
+              ),
         child: ClipRect(
           child: Stack(
             children: [
@@ -454,8 +432,8 @@ class _EditorViewState extends State<EditorView> {
                 Positioned(
                   top: 0,
                   left: 0,
-                  right: 0,
-                  bottom: 0,
+                  height: 260,
+                  width: 260,
                   child: _backgroundWidget!,
                 ),
               ..._widgetList,

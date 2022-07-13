@@ -53,8 +53,7 @@ class ResizableWidget extends StatefulWidget {
   // ignore: no_logic_in_create_state
   _ResizableWidgetState createState() => resizableWidgetState;
 
-  void updateMatrix(Matrix4 matrix4) =>
-      resizableWidgetState._setMatrix(matrix4);
+  void updateMatrix(Matrix4 matrix4) => resizableWidgetState._setMatrix(matrix4);
 
   void updateView() {
     // ignore: invalid_use_of_protected_member
@@ -141,8 +140,7 @@ class _ResizableWidgetState extends State<ResizableWidget> {
               key: key,
               children: [
                 MatrixGestureDetector(
-                  onMatrixUpdate:
-                      (Matrix4 m, Matrix4 tm, Matrix4 sm, Matrix4 rm) {
+                  onMatrixUpdate: (Matrix4 m, Matrix4 tm, Matrix4 sm, Matrix4 rm) {
                     setState(() {
                       if (widget.canMove) {
                         matrix = m;
@@ -150,8 +148,7 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                       }
                       if (!_isTouched) {
                         _isTouched = true;
-                        widget.onSetTop(
-                            widget.key!, widget.position, widget.widgetType);
+                        widget.onSetTop(widget.key!, widget.position, widget.widgetType);
                       }
                     });
 
@@ -174,18 +171,14 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                   child: InkWell(
                     onTap: () {
                       debugPrint("click Top");
-                      widget.onClick(
-                          widget.key!, widget.position, widget.widgetType);
-                      widget.onSetTop(
-                          widget.key!, widget.position, widget.widgetType);
+                      widget.onClick(widget.key!, widget.position, widget.widgetType);
+                      widget.onSetTop(widget.key!, widget.position, widget.widgetType);
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
-                        border:
-                            Border.all(color: widget.borderColor, width: 1.0),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(5.0)),
+                        border: Border.all(color: widget.borderColor, width: 1.0),
+                        borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                       ),
                       child: widget.resizableWidget,
                     ),
