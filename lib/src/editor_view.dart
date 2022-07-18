@@ -240,15 +240,17 @@ class _EditorViewState extends State<EditorView> {
           setState(() {
             final finalIndex = _widgetList.indexWhere((element) => element.key == key);
 
-            final touchView = _widgetList.removeAt(finalIndex);
+            final touchView = widget.moveToUpTouchView ? _widgetList.removeAt(finalIndex) : _widgetList[finalIndex];
             touchView.showRemoveIcon = true;
             touchView.canMove = true;
             touchView.borderColor = widget.borderColor;
             touchView.updateView();
-            _widgetList.add(touchView);
 
+            if (widget.moveToUpTouchView) {
+              _widgetList.add(touchView);
+            }
             if (widget.onClick != null) {
-              widget.onClick!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
+              widget.onClick!(widget.moveToUpTouchView ? _widgetList.length - 1 : finalIndex, touchView.resizableWidget, touchView.widgetType);
             }
 
             if (isSingleMove) {
@@ -268,7 +270,7 @@ class _EditorViewState extends State<EditorView> {
           final touchView = _widgetList[finalIndex];
 
           if (widget.onClick != null) {
-            widget.onClick!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
+            widget.onClick!(widget.moveToUpTouchView ? _widgetList.length - 1 : finalIndex, touchView.resizableWidget, touchView.widgetType);
           }
         }
       },
@@ -288,7 +290,7 @@ class _EditorViewState extends State<EditorView> {
             }
 
             if (widget.onViewTouch != null) {
-              widget.onViewTouch!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
+              widget.onViewTouch!(widget.moveToUpTouchView ? _widgetList.length - 1 : finalIndex, touchView.resizableWidget, touchView.widgetType);
             }
 
             if (isSingleMove) {
@@ -307,7 +309,8 @@ class _EditorViewState extends State<EditorView> {
       onTouchOver: (key, position, matrix) {
         if (widget.onViewTouchOver != null) {
           final touchView = _widgetList.firstWhere((element) => element.key == key);
-          widget.onViewTouchOver!(_widgetList.length - 1, touchView.resizableWidget, touchView.widgetType);
+          widget.onViewTouchOver!(
+              widget.moveToUpTouchView ? _widgetList.length - 1 : touchView.position, touchView.resizableWidget, touchView.widgetType);
         }
       },
     );
